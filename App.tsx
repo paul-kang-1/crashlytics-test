@@ -1,132 +1,70 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
+import React, { useState, useEffect } from 'react';
+import {Text, Button, View, TextInput} from 'react-native'
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
-import React, { useEffect } from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  Button
-} from 'react-native';
+type FirebaseUserState = FirebaseAuthTypes.User | null;
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const SignIn = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
-import analytics from '@react-native-firebase/analytics';
-
-declare const global: { HermesInternal: null | {} };
-
-const App = () => {
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
+    const handleSubmit = () => {
+        setLoading(true);
+        auth().signInWithEmailAndPassword(email, password)
+            .then(() => {
+                console.log('success!');
+            })
+            .catch(error => {
+                console.error(error);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
+    if (loading) {
+        return <Text>Loading</Text>;
+    } else {
+        return (
+            <View>
+                <TextInput
+                    value={email}
+                    placeholder="Email"
+                    onChangeText = {setEmail}
+                />
+                <TextInput
+                    value={password}
+                    placeholder="Password"
+                    onChangeText ={setPassword}
+                />
+                <Button title="Sign in" onPress={handleSubmit} />
             </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Button
-                title="Add To Basket"
-                onPress={async () =>
-                  await analytics().logEvent('basket', {
-                    id: 3745092,
-                    item: 'mens grey t-shirt',
-                    description: ['round neck', 'long sleeved'],
-                    size: 'L',
-                  })
-                }
-              />
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App..tsx</Text> to change
-                this screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
+        );
+    }
 };
 
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
+const Dashboard = () => {
+    const handleSignOut = () => {
+        auth().signOut();
+    };
+
+    return (
+        <View>
+            <Text>Hello!</Text>
+            <Button title="Sign Out" onPress={handleSignOut}/>
+        </View>
+    );
+};
+
+const App = () : JSX.Element => {
+    const [currentUser, setUser] = useState<FirebaseUserState>(null);
+    useEffect(() => {
+        return auth().onAuthStateChanged(user => {
+            setUser(user);
+        });
+    });
+
+    return currentUser ? <Dashboard /> : <SignIn />;
+};
 
 export default App;
