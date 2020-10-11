@@ -1,27 +1,45 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import { Text, View } from "react-native";
+import { Text, Button } from "react-native";
 import { Center } from "./Center";
+import { AuthNavProps, AuthParamList } from "./AuthParamList";
+import AsyncStorage from "@react-native-community/async-storage";
+import { AuthContext } from "./AuthProvider";
+import { AppTabs } from "./AppTabs";
+import { AuthStack } from "./AuthStack";
 
 interface RoutesProps {}
 
-const Stack = createStackNavigator();
-
-function Login() {
-  return (
-    <Center>
-      <Text>Loginscreen</Text>
-    </Center>
-  );
-}
-
 export const Routes: React.FC<RoutesProps> = ({}) => {
+  const { user, login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    AsyncStorage.getItem("user")
+      .then((userString) => {
+        if (userString) {
+          login();
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <Center>
+        <Text>Loading</Text>
+      </Center>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={Login} />
-      </Stack.Navigator>
+      {user ? <AppTabs /> : <AuthStack />}
     </NavigationContainer>
   );
 };
