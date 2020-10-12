@@ -1,7 +1,5 @@
 import { TypedNavigator, StackNavigationState } from "@react-navigation/native";
-import { StackNavigationOptions } from "@react-navigation/stack";
-import { StackNavigationEventMap } from "@react-navigation/stack/lib/typescript/src/types";
-import React, { Props, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Text, TouchableOpacity } from "react-native";
 import { Center } from "./Center";
 import { HomeParamList, HomeStackNavProps } from "./HomeParamList";
